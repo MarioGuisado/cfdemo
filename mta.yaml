@@ -1,0 +1,58 @@
+ID: cfdemoS0026472321
+_schema-version: '3.1'
+version:  0.0.1
+parameters:
+  enable-parallel-deployments: true
+
+modules:
+  - name: cfdemoS0026472321-service
+    type: nodejs
+    path: srv
+    provides:
+    - name: srv-api
+      properties:
+        srv-url: ${default-url}
+    build-parameters:
+      ignore:
+        - 'default-*.json'
+        - .env
+        - '*node_modules*'
+        - package-lock.json
+    requires:
+    - name: cfdemoS0026472321-xsuaa  
+
+  - name: cfdemoS0026472321-approuter
+    type: approuter.nodejs
+    path: app
+    build-parameters:
+      ignore:
+        - 'default-*.json'
+        - .env
+        - '*node_modules*'
+        - package-lock.json
+    parameters:
+      memory: 256M
+      disk-quota: 512M
+      keep-existing-routes: true
+    requires:
+      - name: srv-api
+        group: destinations
+        properties:
+          name: srv-api #must be used in xs-app.json as well
+          url: ~{srv-url}
+          timeout: 55000
+          forwardAuthToken: true
+      - name: cfdemoS0026472321-xsuaa 
+
+resources:
+  - name: cfdemoS0026472321-xsuaa
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      config:
+        xsappname: cfdemo-${org}-${space}
+        tenant-mode: dedicated
+        oauth2-configuration:
+          redirect-uris:
+          - "https://*.hana.ondemand.com/**"
