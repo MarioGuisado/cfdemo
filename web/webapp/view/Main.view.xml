@@ -1,0 +1,64 @@
+<mvc:View controllerName="com.xtendhr.web.controller.Main"
+    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+    xmlns="sap.m"
+    xmlns:customData="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1">
+    <Page id="page" title="{i18n>title}">
+        <content> 
+            <!--Label id="idInptLbl" text="GET Service Path: "/><Input id="idInput"/>
+            <Button id="idBtn" press="onCallSRV" text="Call Service"/>
+            <TextArea id="idTextArea" growing="true" width="100%"/-->
+            <VBox id="vboxTabla" alignItems="Center" >
+                <Table id="MDFTable"
+                    fixedLayout="false"
+                    autoPopinMode="true"
+                    growing="true"
+                    items="{
+                        path: 'localModel>/d/results',
+                        sorter: {
+                            path: 'externalCode'
+                        }
+                    }">
+                    
+                    <columns>
+                        <Column
+                            width="12em"
+                            hAlign="Center">
+                            <Text text="External Code" />
+                        </Column>
+                        <Column
+                            width="150px">
+                            <Text text="Shirt Size" />
+                        </Column>
+                        <Column
+                            width="10rem"
+                            hAlign="Center">
+                            <Text text="Shirt Color"/>
+                        </Column>
+                        <Column
+                            width="10rem"
+                            hAlign="Center">
+                            <Text text="Details"/>
+                        </Column>
+                    </columns>
+                    <items>
+                        <ColumnListItem vAlign="Middle">
+                            <cells>
+                                <ObjectIdentifier id="objID"
+                                    title="{localModel>externalCode}"
+                                    class="sapUiTinyMarginTopBottom"/>
+
+                                <Text text="{localModel>cust_ShirtSize}" />
+
+                                <Text text="{localModel>cust_ShirtColor}"/>
+
+                                <Button id="detailButton" text="View details" type="Emphasized" icon="sap-icon://create" press="onDetail"/>
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+
+                <Button id="createButton" text="Create" type="Emphasized" icon="sap-icon://create" press="onCreate"/>
+            </VBox>
+        </content>
+    </Page>
+</mvc:View>

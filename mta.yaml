@@ -1,58 +1,118 @@
+_schema-version: "3.1"
 ID: cfdemoS0026472321
-_schema-version: '3.1'
-version:  0.0.1
-parameters:
-  enable-parallel-deployments: true
-
+version: 0.0.1
 modules:
-  - name: cfdemoS0026472321-service
-    type: nodejs
-    path: srv
-    provides:
-    - name: srv-api
-      properties:
-        srv-url: ${default-url}
-    build-parameters:
-      ignore:
-        - 'default-*.json'
-        - .env
-        - '*node_modules*'
-        - package-lock.json
-    requires:
-    - name: cfdemoS0026472321-xsuaa  
-
-  - name: cfdemoS0026472321-approuter
-    type: approuter.nodejs
-    path: app
-    build-parameters:
-      ignore:
-        - 'default-*.json'
-        - .env
-        - '*node_modules*'
-        - package-lock.json
-    parameters:
-      memory: 256M
-      disk-quota: 512M
-      keep-existing-routes: true
-    requires:
-      - name: srv-api
-        group: destinations
-        properties:
-          name: srv-api #must be used in xs-app.json as well
-          url: ~{srv-url}
-          timeout: 55000
-          forwardAuthToken: true
-      - name: cfdemoS0026472321-xsuaa 
-
-resources:
+- name: cfdemoS0026472321-service
+  type: nodejs
+  path: srv
+  requires:
   - name: cfdemoS0026472321-xsuaa
-    type: org.cloudfoundry.managed-service
+  - name: cfdemoS0026472321-destination-service
+  provides:
+  - name: srv-api
+    properties:
+      srv-url: ${default-url}
+  build-parameters:
+    ignore:
+    - default-*.json
+    - .env
+    - '*node_modules*'
+    - package-lock.json
+- name: cfdemoS0026472321-approuter
+  type: approuter.nodejs
+  path: app
+  requires:
+  - name: srv-api
+    group: destinations
+    properties:
+      forwardAuthToken: true
+      name: srv-api
+      timeout: 55000
+      url: ~{srv-url}
+  - name: cfdemoS0026472321-xsuaa
+  - name: cfdemoS0026472321-destination-service
+  - name: cfdemoS0026472321-repo-rt
+    group: destinations
+    properties:
+      forwardAuthToken: false
+      name: ui5
+      url: https://ui5.sap.com
+  parameters:
+    disk-quota: 512M
+    keep-existing-routes: true
+    memory: 256M
+  build-parameters:
+    ignore:
+    - default-*.json
+    - .env
+    - '*node_modules*'
+    - package-lock.json
+- name: cfdemoS0026472321-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: cfdemoS0026472321-repo-host
     parameters:
-      service: xsuaa
-      service-plan: application
-      config:
-        xsappname: cfdemo-${org}-${space}
-        tenant-mode: dedicated
-        oauth2-configuration:
-          redirect-uris:
-          - "https://*.hana.ondemand.com/**"
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - comxtendhrweb.zip
+      name: comxtendhrweb
+      target-path: resources/
+- name: comxtendhrweb
+  type: html5
+  path: web
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: cfdemoS0026472321-xsuaa
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      xsappname: cfdemoS0026472321-${org}-${space}
+    path: ./xs-security.json
+    service: xsuaa
+    service-plan: application
+  properties:
+    XSAPPNAME: cfdemoS0026472321-${org}-${space}
+
+- name: cfdemoS0026472321-repo-rt
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service-plan: app-runtime
+    service: html5-apps-repo
+
+- name: cfdemoS0026472321-repo-host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: cfdemoS0026472321-html5-srv
+    service-plan: app-host
+- name: cfdemoS0026472321-destination-service
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: false
+      init_data:
+        instance:
+          destinations:
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          existing_destinations_policy: update
+      version: 1.0.0
+    service: destination
+    service-name: cfdemoS0026472321-destination-service
+    service-plan: lite
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true

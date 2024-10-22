@@ -1,0 +1,46 @@
+<mvc:View controllerName="com.xtendhr.web.controller.Details"
+    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+    xmlns="sap.m"
+    xmlns:customData="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
+    xmlns:f="sap.ui.layout.form">
+    <Page id="detailPage" title="{i18n>title}" navButtonPress="onNavBack" showNavButton="true" >
+        <content>
+            <VBox id="vboxTablaDetail" alignItems="Center" >
+                <f:SimpleForm id="SimpleFormChange3542"
+                    editable="true"
+                    layout="ResponsiveGridLayout"
+                    title="Edit"
+                    labelSpanXL="3"
+                    labelSpanL="3"
+                    labelSpanM="3"
+                    labelSpanS="12"
+                    adjustLabelSpan="false"
+                    emptySpanXL="4"
+                    emptySpanL="4"
+                    emptySpanM="4"
+                    emptySpanS="0"
+                    columnsXL="1"
+                    columnsL="1"
+                    columnsM="1"
+                    singleContainerFullSize="false" >
+                    <f:content>
+                        <Label id="label12" text="External Code" />
+                        <Input id="ID1" value="{detailsModel>/externalCode}" editable="false"/>
+
+                        <Label id="label22" text="Shirt Size" />
+                        <Input id="ID2" value="{detailsModel>/cust_ShirtSize}" />
+
+                        <Label id="label32" text="Shirt Color" />
+                        <Input id="ID3" value="{detailsModel>/cust_ShirtColor}" />
+
+                        <Label id="label42" text="Cust Employee" />
+                        <Input id="ID4" value="{detailsModel>/cust_Employee}" />
+
+                    </f:content>
+                </f:SimpleForm>
+                <Button id="editButton" text="Click to Edit" type="Emphasized" icon="sap-icon://edit" press="onEdit"/>
+                <Button id="deleteButton" text="Click to Delete" type="Emphasized" icon="sap-icon://delete" press="onDelete"/>
+            </VBox>
+        </content>
+    </Page>
+</mvc:View>

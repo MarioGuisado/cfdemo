@@ -2,13 +2,15 @@ const express = require("express");
 const passport = require("passport");
 const xsenv = require("@sap/xsenv");
 const JWTStrategy = require("@sap/xssec").JWTStrategy;
-const services = xsenv.getServices({ uaa:"cfdemoS0026472321-xsuaa" }); //XSUAA service
-
+const httpClient = require("@sap-cloud-sdk/http-client");
+const {retrieveJwt} = require("@sap-cloud-sdk/connectivity");
+const services = xsenv.getServices({uaa:"cfdemoS0026472321-xsuaa"}, {dest: {label: 'destination'}}); //XSUAA service & destination
 const app = express();
 
 passport.use(new JWTStrategy(services.uaa));
 app.use(passport.initialize());
 app.use(passport.authenticate("JWT", { session: false}));
+app.use(express.json());
 
 /*app.get("/", function (req, res,next){
     res.send("Welcome to basic NodeJS");
@@ -16,6 +18,89 @@ app.use(passport.authenticate("JWT", { session: false}));
 
 app.get("/", function (req, res,next){
     res.send("Welcome to basic NodeJS: " + req.user.id);
+});
+
+app.get("/user", function (req, res,next){
+    res.send("I am: " + req.user.id);
+});
+
+// /srv/destination?destinationX=sfdemo&path=cust_CompanyShirts_S0026472321
+app.get('/destination', async function(req, res){
+    try{
+        let res1 = await httpClient.executeHttpRequest(
+           {
+            destinationName: req.query.destinationX || '',
+            jwt: retrieveJwt(req)
+           },
+           {
+                method:'GET',
+                url: req.query.path || '/'
+           }
+        );
+        res.status(200).send(res1.data);
+    }
+    catch(error){
+        res.status(500).send(error.message);
+    }
+});
+
+app.post('/edit', async function(req, res){
+    try{
+        let res1 = await httpClient.executeHttpRequest(
+           {
+            destinationName: req.query.destinationX || '',
+            jwt: retrieveJwt(req)
+           },
+           {
+                method:'POST',
+                url: req.query.path || '/',
+                data: req.body  
+           }
+        );
+        res.status(200).json(res1.data);
+    }
+    catch(error){
+        res.status(500).send(error.message);
+    }
+});
+
+app.post('/create', async function(req, res){
+    try{
+        let res1 = await httpClient.executeHttpRequest(
+           {
+            destinationName: req.query.destinationX || '',
+            jwt: retrieveJwt(req)
+           },
+           {
+                method:'POST',
+                url: req.query.path || '/',
+                data: req.body  
+           }
+        );
+        res.status(200).json(res1.data);
+    }
+    catch(error){
+        res.status(500).send(error.message);
+    }
+});
+
+app.delete('/delete', async function (req, res){
+    try{
+        let res1 = await httpClient.executeHttpRequest(
+            {
+                destinationName: req.query.destinationX || '',
+                jwt: retrieveJwt(req)
+            },
+            {
+                method: 'DELETE',
+                url: req.query.path || '/'
+            }
+            
+        );
+        res.status(200).send();
+    } catch (err){
+        res.status(500).send(err.message);
+    }
 });
 
 const port = process.env.PORT || 5000;

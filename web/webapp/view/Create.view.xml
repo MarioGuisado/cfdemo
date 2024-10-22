@@ -1,0 +1,43 @@
+<mvc:View controllerName="com.xtendhr.web.controller.Create"
+    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+    xmlns="sap.m"
+    xmlns:customData="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
+    xmlns:f="sap.ui.layout.form">
+    <Page id="createPage" title="{i18n>title}" navButtonPress="onNavBack" showNavButton="true" >
+        <content>
+            <VBox id="vboxTablaCreate" alignItems="Center" >
+                <f:SimpleForm id="SimpleFormChangeCreate"
+                    editable="true"
+                    layout="ResponsiveGridLayout"
+                    title="Edit"
+                    labelSpanXL="3"
+                    labelSpanL="3"
+                    labelSpanM="3"
+                    labelSpanS="12"
+                    adjustLabelSpan="false"
+                    emptySpanXL="4"
+                    emptySpanL="4"
+                    emptySpanM="4"
+                    emptySpanS="0"
+                    columnsXL="1"
+                    columnsL="1"
+                    columnsM="1"
+                    singleContainerFullSize="false" >
+                    <f:content>
+
+                        <Label id="label22create" text="Shirt Size" />
+                        <Input id="ID2create" value="" />
+
+                        <Label id="label32create" text="Shirt Color" />
+                        <Input id="ID3create" value="" />
+
+                        <Label id="label42create" text="Cust Employee" />
+                        <Input id="ID4create" value="" />
+
+                    </f:content>
+                </f:SimpleForm>
+                <Button id="saveButton" text="Save" type="Emphasized" icon="sap-icon://edit" press="onSave"/>
+            </VBox>
+        </content>
+    </Page>
+</mvc:View>
