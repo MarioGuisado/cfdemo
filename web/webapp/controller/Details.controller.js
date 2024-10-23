@@ -1,7 +1,10 @@
 sap.ui.define([
-    "sap/ui/core/mvc/Controller"
+    "sap/ui/core/mvc/Controller",
+	"sap/ui/core/Fragment",
+	"sap/ui/model/Filter",
+	"sap/ui/model/FilterOperator"
 ],
-function (Controller) {
+function (Controller, Fragment, Filter, FilterOperator) {
     "use strict";
 
     return Controller.extend("com.xtendhr.web.controller.Details", {
@@ -12,8 +15,47 @@ function (Controller) {
         },
         onRouteMatched: function (oEvent) {	
 			this.objId = oEvent.getParameter("arguments").objectId;
-            var url = "/srv/destination?destinationX=sfdemo&path=cust_CompanyShirts_S0026472321?$filter=externalCode eq '" + this.objId +"'&$format=json"
+            var url = "/srv/destination?path=cust_CompanyShirts_S0026472321?$filter=externalCode eq '" + this.objId +"'&$format=json"
             this.onCallSRV(url, "GET");	
+            
+            var self = this;
+            $.ajax({
+                url: "/srv/destination?path=PickListValueV2?$filter=PickListV2_id eq 'Shirt_Sizes_S0026472321'&$format=json",
+                type: "GET",
+                contentType: "application/json",
+                success: function(data){
+                    var oModel = new sap.ui.model.json.JSONModel(data);
+                    self.getView().setModel(oModel, "createModelShirtSize");
+                },
+                error: function(error){
+                    console.log(error);
+                }
+            });
+            $.ajax({
+                url: "/srv/destination?path=PickListValueV2?$filter=PickListV2_id eq 'Shirt_Color_S0026472321'&$format=json",
+                type: "GET",
+                contentType: "application/json",
+                success: function(data){
+                    var oModel = new sap.ui.model.json.JSONModel(data);
+                    self.getView().setModel(oModel, "createModelShirtColor");
+                },
+                error: function(error){
+                    console.log(error);
+                }
+            });
+            $.ajax({
+                url: "/srv/destination?path=User?$top=20&$format=json",
+                type: "GET",
+                contentType: "application/json",
+                success: function(data){
+                    var oModel = new sap.ui.model.json.JSONModel(data);
+                    self.getView().setModel(oModel, "Users");
+                },
+                error: function(error){
+                    console.log(error);
+                }
+            });
+            
 		},
         onCallSRV: function(url_provided, operation){
             var self = this;
@@ -24,6 +66,11 @@ function (Controller) {
                 success: function(data){
                     var localModel = new sap.ui.model.json.JSONModel(data.d.results[0]);
                     self.getView().setModel(localModel, "detailsModel");
+                    console.log(data.d.results[0]["externalCode"]);
+                    self.getView().byId("externalCodeCombobox").setValue(data.d.results[0]["externalCode"]);
+                    self.getView().byId("createModelShirtSize").setSelectedKey(data.d.results[0]["cust_ShirtSize"]);
+                    self.getView().byId("createModelShirtColor").setSelectedKey(data.d.results[0]["cust_ShirtColor"]);
+                    self.getView().byId("UserInputedit").setValue(data.d.results[0]["cust_Employee"]);
                 },
                 error: function(error){
                     console.log(error);
@@ -35,18 +82,37 @@ function (Controller) {
         },
         onEdit: function(){
             var self = this;
-            var url_provided = "/srv/edit?destinationX=sfdemo&path=cust_CompanyShirts_S0026472321/upsert";
-           
+            var url_provided = "/srv/edit?path=cust_CompanyShirts_S0026472321/upsert";
+            var shirtSize = "SS_Small";
+            switch(self.getView().byId("createModelShirtSize").getValue()){
+                case "Medium":
+                    shirtSize = "SS_Medium";
+                    break;
+                case "Large":
+                    shirtSize = "SS_Large";
+                    break;
+            }
+            var shirtColor = "CC_NavyBlue";
+            switch(self.getView().byId("createModelShirtColor").getValue()){
+                case "Grey":
+                    shirtColor = "CC_Grey";
+                    break;
+                case "Red":
+                    shirtColor = "CC_Red";
+                    break;
+                case "Black":
+                    shirtColor = "CC_Black";
+                    break;
+            }
             var updatedData = {
                 "__metadata": {
                     "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/cust_CompanyShirts_S0026472321("+this.objId+"L)",
                     "type": "SFOData.cust_CompanyShirts_S0026472321"
                 },
-                "cust_ShirtSize": self.getView().byId("ID2").getValue(),
-                "cust_ShirtColor": self.getView().byId("ID3").getValue(),
-                "cust_Employee": self.getView().byId("ID4").getValue()
+                "cust_ShirtSize": shirtSize,
+                "cust_ShirtColor": shirtColor,
+                "cust_Employee": self.getView().byId("UserInputedit").getValue()
             };
-            console.log(JSON.stringify(updatedData));
             $.ajax({
                 url: url_provided,
                 type: "POST",
@@ -61,9 +127,49 @@ function (Controller) {
                 }
             });
         },
+        onValueHelpRequest: function (oEvent) {
+			var sInputValue = oEvent.getSource().getValue(),
+				oView = this.getView();
+
+			if (!this._pValueHelpDialog) {
+				this._pValueHelpDialog = Fragment.load({
+					id: oView.getId(),
+					name: "com.xtendhr.web.view.ValueHelpDialog",
+					controller: this
+				}).then(function (oDialog) {
+					oView.addDependent(oDialog);
+					return oDialog;
+				});
+			}
+			this._pValueHelpDialog.then(function(oDialog) {
+                var oBinding = oDialog.getBinding("items");
+                if (oBinding) {
+                    oBinding.filter([new Filter("displayName", FilterOperator.Contains, sInputValue)]);
+                }
+				oDialog.open(sInputValue);
+			});
+		},
+
+		onValueHelpSearch: function (oEvent) {
+			var sValue = oEvent.getParameter("value");
+			var oFilter = new Filter("displayName", FilterOperator.Contains, sValue);
+
+			oEvent.getSource().getBinding("items").filter([oFilter]);
+		},
+
+		onValueHelpClose: function (oEvent) {
+			var oSelectedItem = oEvent.getParameter("selectedItem");
+			oEvent.getSource().getBinding("items").filter([]);
+
+			if (!oSelectedItem) {
+				return;
+			}
+            console.log(oSelectedItem.getDescription());
+			this.byId("UserInputedit").setValue(oSelectedItem.getDescription());
+		},
         onDelete: function(){
             var self = this;
-            var url_provided = "/srv/delete?destinationX=sfdemo&path=cust_CompanyShirts_S0026472321(externalCode = '"+this.objId+"')";
+            var url_provided = "/srv/delete?path=cust_CompanyShirts_S0026472321(externalCode = '"+this.objId+"')";
            
             $.ajax({
                 url: url_provided,

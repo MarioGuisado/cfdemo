@@ -2,11 +2,12 @@
     xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
     xmlns="sap.m"
     xmlns:customData="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
-    xmlns:f="sap.ui.layout.form">
+    xmlns:f="sap.ui.layout.form"
+    xmlns:core="sap.ui.core">
     <Page id="createPage" title="{i18n>title}" navButtonPress="onNavBack" showNavButton="true" >
         <content>
             <VBox id="vboxTablaCreate" alignItems="Center" >
-                <f:SimpleForm id="SimpleFormChangeCreate"
+                <!--f:SimpleForm id="SimpleFormChangeCreate"
                     editable="true"
                     layout="ResponsiveGridLayout"
                     title="Edit"
@@ -35,7 +36,41 @@
                         <Input id="ID4create" value="" />
 
                     </f:content>
-                </f:SimpleForm>
+                </f:SimpleForm-->
+                <Label id="labelSize" text="Shirt Size"/>
+                <ComboBox id="createShirtSizeComboBox"
+                 items="{
+                        path: 'createModelShirtSize>/d/results',
+                        sorter: {
+                            path: 'externalCode'
+                        }
+                    }">
+				<core:Item id="itemComboBox1" key="{createModelShirtSize>externalCode}" text="{createModelShirtSize>label_defaultValue}" />
+			    </ComboBox>
+                <Label id="labelColor" text="Shirt Color"/>
+                <ComboBox id="createShirtColorComboBox"
+                 items="{
+                        path: 'createModelShirtColor>/d/results',
+                        sorter: {
+                            path: 'externalCode'
+                        }
+                    }">
+				<core:Item id="itemComboBox2" key="{createModelShirtColor>externalCode}" text="{createModelShirtColor>label_defaultValue}" />
+			    </ComboBox>
+                <Label id="labelUser" text="User" labelFor="UserInput" />
+                <Input
+                    id="UserInput"
+                    placeholder="Enter User"
+                    showSuggestion="true"
+                    showValueHelp="true"
+                    valueHelpRequest=".onValueHelpRequest"
+                    suggestionItems="{
+                        path: 'Users>/d/results'
+                    }">
+                    <suggestionItems>
+                        <core:Item id="itemComboBox3" text="{Users>displayName}" />
+                    </suggestionItems>
+                </Input>
                 <Button id="saveButton" text="Save" type="Emphasized" icon="sap-icon://edit" press="onSave"/>
             </VBox>
         </content>

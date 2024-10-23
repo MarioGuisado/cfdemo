@@ -1,0 +1,15 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<SelectDialog
+		id="selectDialog"
+		title="Products"
+		items="{
+                path: 'Users>/d/results'
+            }"
+		search=".onValueHelpSearch"
+		confirm=".onValueHelpClose"
+		cancel=".onValueHelpClose">
+		<StandardListItem id="mockID"
+			title="{Users>displayName}"
+			description="{Users>userId}"/>
+	</SelectDialog>
+</core:FragmentDefinition>

@@ -6,6 +6,7 @@ const httpClient = require("@sap-cloud-sdk/http-client");
 const {retrieveJwt} = require("@sap-cloud-sdk/connectivity");
 const services = xsenv.getServices({uaa:"cfdemoS0026472321-xsuaa"}, {dest: {label: 'destination'}}); //XSUAA service & destination
 const app = express();
+const destination = "sfdemo";
 
 passport.use(new JWTStrategy(services.uaa));
 app.use(passport.initialize());
@@ -24,12 +25,12 @@ app.get("/user", function (req, res,next){
     res.send("I am: " + req.user.id);
 });
 
-// /srv/destination?destinationX=sfdemo&path=cust_CompanyShirts_S0026472321
+// /srv/destination?path=cust_CompanyShirts_S0026472321
 app.get('/destination', async function(req, res){
     try{
         let res1 = await httpClient.executeHttpRequest(
            {
-            destinationName: req.query.destinationX || '',
+            destinationName: destination || '',
             jwt: retrieveJwt(req)
            },
            {
@@ -48,7 +49,7 @@ app.post('/edit', async function(req, res){
     try{
         let res1 = await httpClient.executeHttpRequest(
            {
-            destinationName: req.query.destinationX || '',
+            destinationName: destination || '',
             jwt: retrieveJwt(req)
            },
            {
@@ -68,7 +69,7 @@ app.post('/create', async function(req, res){
     try{
         let res1 = await httpClient.executeHttpRequest(
            {
-            destinationName: req.query.destinationX || '',
+            destinationName: destination || '',
             jwt: retrieveJwt(req)
            },
            {
@@ -88,7 +89,7 @@ app.delete('/delete', async function (req, res){
     try{
         let res1 = await httpClient.executeHttpRequest(
             {
-                destinationName: req.query.destinationX || '',
+                destinationName: destination || '',
                 jwt: retrieveJwt(req)
             },
             {
