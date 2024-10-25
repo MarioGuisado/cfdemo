@@ -8,11 +8,12 @@ const services = xsenv.getServices({uaa:"cfdemoS0026472321-xsuaa"}, {dest: {labe
 const app = express();
 const destination = "sfdemo";
 
+
 passport.use(new JWTStrategy(services.uaa));
 app.use(passport.initialize());
 app.use(passport.authenticate("JWT", { session: false}));
 app.use(express.json());
-
+app.use(express.urlencoded({ extended: true }));
 /*app.get("/", function (req, res,next){
     res.send("Welcome to basic NodeJS");
 });*/
@@ -27,6 +28,27 @@ app.get("/user", function (req, res,next){
 
 // /srv/destination?path=cust_CompanyShirts_S0026472321
 app.get('/destination', async function(req, res){
+    try{
+        let res1 = await httpClient.executeHttpRequest(
+           {
+            destinationName: destination || '',
+            jwt: retrieveJwt(req)
+           },
+           {
+                method:'GET',
+                url: req.query.path || '/'
+           }
+        );
+        res.status(200).send(res1.data);
+    }
+    catch(error){
+        res.status(500).send(error.message);
+    }
+});
+
+app.get('/details', async function(req, res){
+    
+    console.log("details url: " + req.query.path);
     try{
         let res1 = await httpClient.executeHttpRequest(
            {

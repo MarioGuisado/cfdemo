@@ -16,7 +16,7 @@ function (Controller, Fragment, Filter, FilterOperator) {
         },
         onRouteMatched: function (oEvent) {	
 			this.objId = oEvent.getParameter("arguments").objectId;
-            var url = "/srv/destination?path=cust_CompanyShirts_S0026472321?$filter=externalCode eq '" + this.objId +"'&$expand=cust_EmployeeNav"
+            var url = "/srv/details?path=cust_CompanyShirts_S0026472321?$filter=externalCode eq '" + this.objId +"'%26$expand=cust_EmployeeNav"
             this.onCallSRV(url, "GET");	
             
             var self = this;
