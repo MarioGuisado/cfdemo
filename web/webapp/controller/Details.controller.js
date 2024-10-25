@@ -10,12 +10,13 @@ function (Controller, Fragment, Filter, FilterOperator) {
     return Controller.extend("com.xtendhr.web.controller.Details", {
         onInit: function () {
             this.objId = undefined;
+            this.userSelected = undefined;
             this.getOwnerComponent().getRouter().getRoute("Details").attachMatched(this.onRouteMatched, this);
 
         },
         onRouteMatched: function (oEvent) {	
 			this.objId = oEvent.getParameter("arguments").objectId;
-            var url = "/srv/destination?path=cust_CompanyShirts_S0026472321?$filter=externalCode eq '" + this.objId +"'&$format=json"
+            var url = "/srv/destination?path=cust_CompanyShirts_S0026472321?$filter=externalCode eq '" + this.objId +"'&$expand=cust_EmployeeNav"
             this.onCallSRV(url, "GET");	
             
             var self = this;
@@ -66,11 +67,10 @@ function (Controller, Fragment, Filter, FilterOperator) {
                 success: function(data){
                     var localModel = new sap.ui.model.json.JSONModel(data.d.results[0]);
                     self.getView().setModel(localModel, "detailsModel");
-                    console.log(data.d.results[0]["externalCode"]);
                     self.getView().byId("externalCodeCombobox").setValue(data.d.results[0]["externalCode"]);
                     self.getView().byId("createModelShirtSize").setSelectedKey(data.d.results[0]["cust_ShirtSize"]);
                     self.getView().byId("createModelShirtColor").setSelectedKey(data.d.results[0]["cust_ShirtColor"]);
-                    self.getView().byId("UserInputedit").setValue(data.d.results[0]["cust_Employee"]);
+                    self.getView().byId("UserInputedit").setSelectedKey(data.d.results[0]["cust_Employee"]);
                 },
                 error: function(error){
                     console.log(error);
@@ -83,27 +83,11 @@ function (Controller, Fragment, Filter, FilterOperator) {
         onEdit: function(){
             var self = this;
             var url_provided = "/srv/edit?path=cust_CompanyShirts_S0026472321/upsert";
-            var shirtSize = "SS_Small";
-            switch(self.getView().byId("createModelShirtSize").getValue()){
-                case "Medium":
-                    shirtSize = "SS_Medium";
-                    break;
-                case "Large":
-                    shirtSize = "SS_Large";
-                    break;
-            }
-            var shirtColor = "CC_NavyBlue";
-            switch(self.getView().byId("createModelShirtColor").getValue()){
-                case "Grey":
-                    shirtColor = "CC_Grey";
-                    break;
-                case "Red":
-                    shirtColor = "CC_Red";
-                    break;
-                case "Black":
-                    shirtColor = "CC_Black";
-                    break;
-            }
+
+            var shirtSize = self.getView().byId("createModelShirtSize").getSelectedKey();
+            var shirtColor = self.getView().byId("createModelShirtColor").getSelectedKey();
+            var employee = this.userSelected;
+        
             var updatedData = {
                 "__metadata": {
                     "uri": "https://apisalesdemo2.successfactors.eu/odata/v2/cust_CompanyShirts_S0026472321("+this.objId+"L)",
@@ -111,7 +95,7 @@ function (Controller, Fragment, Filter, FilterOperator) {
                 },
                 "cust_ShirtSize": shirtSize,
                 "cust_ShirtColor": shirtColor,
-                "cust_Employee": self.getView().byId("UserInputedit").getValue()
+                "cust_Employee": employee
             };
             $.ajax({
                 url: url_provided,
@@ -164,8 +148,9 @@ function (Controller, Fragment, Filter, FilterOperator) {
 			if (!oSelectedItem) {
 				return;
 			}
-            console.log(oSelectedItem.getDescription());
-			this.byId("UserInputedit").setValue(oSelectedItem.getDescription());
+
+			this.byId("UserInputedit").setValue(oSelectedItem.getTitle());
+            this.userSelected = oSelectedItem.getDescription();
 		},
         onDelete: function(){
             var self = this;

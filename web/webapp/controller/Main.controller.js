@@ -9,7 +9,7 @@ function (Controller) {
             this.getOwnerComponent().getRouter().getRoute("RouteMain").attachMatched(this.onRouteMatched, this);
         },
         onRouteMatched: function(){
-            this.onCallSRV('/srv/destination?path=cust_CompanyShirts_S0026472321', "GET");
+            this.onCallSRV('/srv/destination?path=cust_CompanyShirts_S0026472321?$expand=cust_EmployeeNav,cust_ShirtColorNav,cust_ShirtSizeNav', "GET");
         },
         onCallSRV: function(url_provided, operation){
             var self = this;

@@ -10,6 +10,7 @@ function (Controller, Fragment, Filter, FilterOperator) {
     return Controller.extend("com.xtendhr.web.controller.Create", {
         onInit: function () {
             this.getOwnerComponent().getRouter().getRoute("Create").attachMatched(this.onRouteMatched, this);
+            this.userSelected = undefined;
         },
         onValueHelpRequest: function (oEvent) {
 			var sInputValue = oEvent.getSource().getValue(),
@@ -49,7 +50,8 @@ function (Controller, Fragment, Filter, FilterOperator) {
 				return;
 			}
 
-			this.byId("UserInput").setValue(oSelectedItem.getDescription());
+			this.byId("UserInput").setValue(oSelectedItem.getTitle());
+            this.userSelected = oSelectedItem.getDescription();
 		},
         onRouteMatched: function () {	
             var self = this;
@@ -99,7 +101,7 @@ function (Controller, Fragment, Filter, FilterOperator) {
             
             var shirtSize = self.getView().byId("createShirtSizeComboBox").getSelectedKey();
             var shirtColor = self.getView().byId("createShirtColorComboBox").getSelectedKey();
-            var employee = self.getView().byId("UserInput").getValue();
+            var employee = this.userSelected;
         
             var newData = {  
                 "cust_ShirtSize": shirtSize,
@@ -113,12 +115,9 @@ function (Controller, Fragment, Filter, FilterOperator) {
                 contentType: "application/json",
                 data: JSON.stringify(newData),
                 success: function(data){
-                    console.log(data);
-    
                     self.getView().byId("createShirtSizeComboBox").setSelectedKey("");
                     self.getView().byId("createShirtColorComboBox").setSelectedKey("");
                     self.getView().byId("UserInput").setValue("");
-        
                     self.getOwnerComponent().getRouter().navTo("RouteMain", {});
                 },
                 error: function(error){

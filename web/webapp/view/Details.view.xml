@@ -74,7 +74,7 @@
                         path: 'Users>/d/results'
                     }">
                     <suggestionItems>
-                        <core:Item id="itemComboBox3edit" text="{Users>displayName}" />
+                        <core:Item id="itemComboBox3edit" key="{Users>userId}" text="{Users>displayName}" />
                     </suggestionItems>
                 </Input>
                 <Button id="editButton" text="Click to Edit" type="Emphasized" icon="sap-icon://edit" press="onEdit"/>

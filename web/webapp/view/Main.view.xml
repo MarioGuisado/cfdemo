@@ -37,6 +37,11 @@
                         <Column
                             width="10rem"
                             hAlign="Center">
+                            <Text text="User"/>
+                        </Column>
+                        <Column
+                            width="10rem"
+                            hAlign="Center">
                             <Text text="Details"/>
                         </Column>
                     </columns>
@@ -47,9 +52,11 @@
                                     title="{localModel>externalCode}"
                                     class="sapUiTinyMarginTopBottom"/>
 
-                                <Text text="{localModel>cust_ShirtSize}" />
+                                <Text text="{localModel>cust_ShirtSizeNav/results/0/label_defaultValue}" />
 
-                                <Text text="{localModel>cust_ShirtColor}"/>
+                                <Text text="{localModel>cust_ShirtColorNav/results/0/label_defaultValue}"/>
+
+                                <Text text="{localModel>cust_EmployeeNav/displayName}"/>
 
                                 <Button id="detailButton" text="View details" type="Emphasized" icon="sap-icon://create" press="onDetail"/>
                             </cells>
