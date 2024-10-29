@@ -4,9 +4,11 @@ const xsenv = require("@sap/xsenv");
 const JWTStrategy = require("@sap/xssec").JWTStrategy;
 const httpClient = require("@sap-cloud-sdk/http-client");
 const {retrieveJwt} = require("@sap-cloud-sdk/connectivity");
-const services = xsenv.getServices({uaa:"cfdemoS0026472321-xsuaa"}, {dest: {label: 'destination'}}); //XSUAA service & destination
+const services = xsenv.getServices({uaa:"cfdemo2321-xsuaa"}, {dest: {label: 'destination'}}); //XSUAA service & destination
 const app = express();
 const destination = "sfdemo";
+const destinationTECH = "sfodatatech";
+const destinationAPI = "sfodataapi";
 
 
 passport.use(new JWTStrategy(services.uaa));
@@ -28,15 +30,16 @@ app.get("/user", function (req, res,next){
 
 // /srv/destination?path=cust_CompanyShirts_S0026472321
 app.get('/destination', async function(req, res){
+    console.log("path for getTable: " + '/odata/v2/' + req.query.path);
     try{
         let res1 = await httpClient.executeHttpRequest(
            {
-            destinationName: destination || '',
+            destinationName: destinationTECH || '',
             jwt: retrieveJwt(req)
            },
            {
                 method:'GET',
-                url: req.query.path || '/'
+                url: '/odata/v2/' + req.query.path
            }
         );
         res.status(200).send(res1.data);
@@ -48,16 +51,16 @@ app.get('/destination', async function(req, res){
 
 app.get('/details', async function(req, res){
     
-    console.log("details url: " + req.query.path);
+    console.log("details url: "  + '/odata/v2/' + req.query.path);
     try{
         let res1 = await httpClient.executeHttpRequest(
            {
-            destinationName: destination || '',
+            destinationName: destinationTECH || '',
             jwt: retrieveJwt(req)
            },
            {
                 method:'GET',
-                url: req.query.path || '/'
+                url: '/odata/v2/' + req.query.path
            }
         );
         res.status(200).send(res1.data);
@@ -68,15 +71,17 @@ app.get('/details', async function(req, res){
 });
 
 app.post('/edit', async function(req, res){
+    console.log("path for edit: " + '/odata/v2/' + req.query.path);
+    console.log("body for edit: " + JSON.stringify(req.body));
     try{
         let res1 = await httpClient.executeHttpRequest(
            {
-            destinationName: destination || '',
+            destinationName: destinationAPI || '',
             jwt: retrieveJwt(req)
            },
            {
                 method:'POST',
-                url: req.query.path || '/',
+                url: '/odata/v2/' + req.query.path,
                 data: req.body  
            }
         );
@@ -91,12 +96,12 @@ app.post('/create', async function(req, res){
     try{
         let res1 = await httpClient.executeHttpRequest(
            {
-            destinationName: destination || '',
+            destinationName: destinationAPI || '',
             jwt: retrieveJwt(req)
            },
            {
                 method:'POST',
-                url: req.query.path || '/',
+                url: '/odata/v2/' + req.query.path,
                 data: req.body  
            }
         );
@@ -111,12 +116,12 @@ app.delete('/delete', async function (req, res){
     try{
         let res1 = await httpClient.executeHttpRequest(
             {
-                destinationName: destination || '',
+                destinationName: destinationAPI || '',
                 jwt: retrieveJwt(req)
             },
             {
                 method: 'DELETE',
-                url: req.query.path || '/'
+                url: '/odata/v2/' + req.query.path
             }
             
         );

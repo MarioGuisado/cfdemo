@@ -1,37 +1,32 @@
 {
-    "xsappname": "cfdemoS0026472321",
-    "tenant-mode": "dedicated",    
-    "scopes": [
+    "scopes":[
         {
-            "name": "$XSAPPNAME.Everyone",
-            "description": "Everyone"
-            
+            "name": "$XSAPPNAME.Callback",
+            "description": "With this scope set, the callback for tenant onboarding",
+            "grant-as-authority-to-apps":[
+                "$XSAPPNAME(application,sap-provisioning,tenant-onboarding)"
+            ]
         },
         {
             "name": "uaa.user",
             "description": "UAA"
         }
+
     ],
-    "role-templates": [
+    "role-templates":[
         {
-            "name": "Everyone",
-            "scope-references": [
-                "$XSAPPNAME.Everyone",
+            "name": "Token_Exchange",
+            "description": "UAA Token Exchange",
+            "scope-references":[               
                 "uaa.user"
             ]
         }
     ],
-    "role-collections": [
-        {
-            "name": "cfdemoS0026472321_RC",
-            "role-template-references":[
-                "$XSAPPNAME.Everyone"
-            ]
-        }
-    ],
-    "oauth2-configuration": {
+    "oauth2-configuration":
+    {
         "redirect-uris": [
             "https://*.hana.ondemand.com/**"
-        ]
+        ],
+        "token-validity": 3600
     }
 }
